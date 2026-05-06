@@ -1,0 +1,3298 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}q'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}V'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}vq'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const getTimestamp = () =>
+  new Date().toISOString().replace('T', ' ').substring(11, 23);
+
+const COUNTDOWN_TARGET = new Date('2025-05-10T00:00:00');
+
+export default function Home() {
+  const [uptime, setUptime]       = useState('0s');
+  const [countdown, setCountdown] = useState('');
+  const [variants, setVariants]   = useState(124);
+  const [snipers, setSnipers]     = useState(14);
+  const [log, setLog]             = useState([
+    { id: 0, time: 'BOOT', message: 'Empire AI predictive cloud initialized', type: 'ok' },
+  ]);
+
+  const bootTime = useRef(Date.now());
+  const logId    = useRef(1);
+
+  const formatUptime = (ms) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  const formatCountdown = () => {
+    const now  = new Date();
+    const diff = COUNTDOWN_TARGET - now;
+    if (diff <= 0) return 'PAYDAY';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${d}D ${h}H ${m}M ${s}S`;
+  };
+
+  const appendLog = (message, type = 'info') => {
+    setLog((prev) => {
+      const entry = { id: logId.current++, time: getTimestamp(), message, type };
+      const next  = [entry, ...prev];
+      return next.length > 10 ? next.slice(0, 10) : next;
+    });
+  };
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setUptime(formatUptime(Date.now() - bootTime.current));
+      setCountdown(formatCountdown());
+    }, 1000);
+
+    // Simulate live variant generation
+    const variantIv = setInterval(() => {
+      setVariants((v) => v + Math.floor(Math.random() * 3));
+      if (Math.random() > 0.7) appendLog('New video variant generated', 'ok');
+    }, 4000);
+
+    setCountdown(formatCountdown());
+    return () => { clearInterval(iv); clearInterval(variantIv); };
+  }, []);
+
+  const METRICS = [
+    {
+      label:    'PREDICTIVE REVENUE',
+      value:    '$42,900',
+      sub:      '+12% FROM LAST STORM',
+      subColor: '#39ff14',
+      variant:  'green',
+    },
+    {
+      label:    '1% SUCCESS FEES',
+      value:    '$429.00',
+      sub:      'SOLANA WALLET CONNECTED',
+      subColor: 'rgba(0,245,255,0.5)',
+      variant:  'cyan',
+    },
+    {
+      label:    'ACTIVE AI SNIPERS',
+      value:    String(snipers),
+      sub:      'TARGETING: FLORIDA HAIL STORM',
+      subColor: '#ffb400',
+      variant:  'green',
+    },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+        @keyframes sweep {
+          0%   { top:0; opacity:0; }
+          5%   { opacity:1; }
+          95%  { opacity:1; }
+          100% { top:100%; opacity:0; }
+        }
+        @keyframes glow-pulse {
+          0%,100% { box-shadow:0 0 20px rgba(57,255,20,0.15),0 0 60px rgba(0,245,255,0.05); }
+          50%     { box-shadow:0 0 40px rgba(57,255,20,0.25),0 0 80px rgba(0,245,255,0.1);  }
+        }
+        @keyframes count-up {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0);   }
+        }
+        .empire-scanlines::before {
+          content:''; position:absolute; inset:0;
+          background:repeating-linear-gradient(
+            0deg,transparent,transparent 3px,
+            rgba(0,245,255,0.018) 3px,rgba(0,245,255,0.018) 4px
+          );
+          pointer-events:none; z-index:0;
+        }
+        .empire-grid::after {
+          content:''; position:absolute; top:0; right:0;
+          width:300px; height:300px;
+          background:
+            linear-gradient(rgba(0,245,255,0.05) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,245,255,0.05) 1px,transparent 1px);
+          background-size:28px 28px;
+          mask-image:radial-gradient(ellipse at top right,black 0%,transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .empire-shell { animation:glow-pulse 4s ease-in-out infinite; }
+        .empire-shell::before {
+          content:''; position:absolute; top:-1px; left:-1px;
+          width:48px; height:48px;
+          border-top:2px solid #39ff14; border-left:2px solid #39ff14;
+        }
+        .empire-shell::after {
+          content:''; position:absolute; bottom:-1px; right:-1px;
+          width:48px; height:48px;
+          border-bottom:2px solid #39ff14; border-right:2px solid #39ff14;
+        }
+        .metric-card {
+          transition:border-color .2s,transform .2s;
+        }
+        .metric-card:hover {
+          border-color:rgba(0,245,255,0.4) !important;
+          transform:translateY(-2px);
+        }
+        .metric-val { animation:count-up .4s ease-out; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+      `}</style>
+
+      <main
+        className="empire-scanlines empire-grid relative min-h-screen bg-[#020808] p-6 overflow-hidden font-['Share_Tech_Mono',monospace]"
+        aria-label="Empire AI Main Dashboard"
+      >
+        {/* Ambient glows */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(57,255,20,0.03) 0%,transparent 70%)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background:'radial-gradient(circle,rgba(0,245,255,0.03) 0%,transparent 70%)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-6">
+
+          {/* ── HEADER ── */}
+          <header className="empire-shell relative border border-[rgba(0,245,255,0.28)] px-6 py-5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 border border-[#39ff14] flex items-center justify-center flex-shrink-0"
+                style={{ boxShadow:'0 0 16px rgba(57,255,20,0.4)' }}>
+                <div className="w-4 h-4 bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 10px rgba(57,255,20,0.9)' }} />
+              </div>
+              <div>
+                <h1
+                  className="font-['Orbitron',monospace] text-3xl font-black tracking-[8px] text-[#39ff14] leading-none"
+                  style={{ textShadow:'0 0 20px rgba(57,255,20,0.6),2px 2px 0 rgba(0,245,255,0.3)' }}
+                >
+                  EMPIRE AI
+                </h1>
+                <p className="text-[9px] tracking-[3px] text-[rgba(0,245,255,0.45)] uppercase mt-1">
+                  Predictive Revenue — Automated Growth Engine
+                </p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col gap-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14]"
+                  style={{ boxShadow:'0 0 6px #39ff14', animation:'pulse-dot 2s ease-in-out infinite' }}
+                  aria-hidden="true" />
+                <p className="text-[10px] tracking-[3px] text-[#39ff14] uppercase font-bold">
+                  Predictive Cloud Active
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.5)] uppercase">
+                  MAY 10 PAYDAY COUNTDOWN
+                </p>
+                <p
+                  className="font-['Orbitron',monospace] text-lg font-bold tracking-widest"
+                  style={{ color:'#00f5ff', textShadow:'0 0 10px rgba(0,245,255,0.5)' }}
+                >
+                  {countdown}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* ── SYSTEM STATUS BAR ── */}
+          <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-5 py-3 overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+            <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.3)] to-transparent animate-[sweep_5s_linear_infinite]" />
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              {[
+                { label:'NODE',     value:'EMP-01',        c:'green' },
+                { label:'ENV',      value:'PRODUCTION',    c:'green' },
+                { label:'UPTIME',   value:uptime,           c:'cyan'  },
+                { label:'BUILD',    value:'v2.1.0',         c:'cyan'  },
+                { label:'SOLANA',   value:'CONNECTED',      c:'green' },
+                { label:'HERMES',   value:'ONLINE',         c:'green' },
+              ].map(({ label, value, c }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase">{label}</span>
+                  <span
+                    className="font-['Orbitron',monospace] text-[10px] font-bold tracking-widest"
+                    style={{
+                      color: c === 'cyan' ? '#00f5ff' : '#39ff14',
+                      textShadow: c === 'cyan' ? '0 0 8px rgba(0,245,255,0.4)' : '0 0 8px rgba(57,255,20,0.4)',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── METRIC CARDS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {METRICS.map(({ label, value, sub, subColor, variant }) => (
+              <div
+                key={label}
+                className="metric-card relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+                <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-[#39ff14] to-transparent opacity-30" />
+                <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">{label}</p>
+                <p
+                  className="metric-val font-['Orbitron',monospace] text-4xl font-black tracking-tight mb-2"
+                  style={{
+                    color: variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                    textShadow: variant === 'cyan'
+                      ? '0 0 20px rgba(0,245,255,0.5)'
+                      : '0 0 20px rgba(57,255,20,0.5)',
+                  }}
+                >
+                  {value}
+                </p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: subColor }}>
+                  {sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── BANNER STRATEGY + SNIPERS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Ugly Banner Strategy */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#39ff14] via-[#00f5ff] to-transparent" />
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background:'radial-gradient(ellipse at top left,rgba(57,255,20,0.04) 0%,transparent 60%)' }} />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// UGLY BANNER STRATEGY</p>
+              <h3
+                className="font-['Orbitron',monospace] text-lg font-black tracking-[3px] text-[#39ff14] mb-2 uppercase"
+                style={{ textShadow:'0 0 12px rgba(57,255,20,0.4)' }}
+              >
+                ACTIVE
+              </h3>
+              <p className="text-[11px] tracking-wide text-[rgba(0,245,255,0.6)] leading-relaxed mb-4">
+                AI is currently generating high-conversion video variants for targeted niches.
+              </p>
+              <div className="flex items-end gap-3">
+                <div>
+                  <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.4)] uppercase mb-1">VARIANTS GENERATED</p>
+                  <p
+                    className="font-['Orbitron',monospace] text-3xl font-black tracking-tight"
+                    style={{ color:'#39ff14', textShadow:'0 0 14px rgba(57,255,20,0.5)' }}
+                  >
+                    {variants}
+                  </p>
+                </div>
+                <div className="flex gap-1 mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 rounded-full"
+                      style={{
+                        height: `${12 + i * 6}px`,
+                        background: i < 4 ? '#39ff14' : 'rgba(57,255,20,0.2)',
+                        boxShadow: i < 4 ? '0 0 6px rgba(57,255,20,0.4)' : 'none',
+                        animation: `pulse-dot ${1.5 + i * 0.3}s ease-in-out infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Storm Sniper Feed */}
+            <div className="relative bg-[#040d0d] border border-[rgba(0,245,255,0.22)] p-6 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f5ff] via-[#39ff14] to-transparent" />
+              <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-3">// STORM SNIPER FEED</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { zone: 'FLORIDA — HAIL STORM',    snipers: 6, status: 'LIVE',     color: '#39ff14' },
+                  { zone: 'TEXAS — WIND EVENT',      snipers: 4, status: 'SCANNING', color: '#ffb400' },
+                  { zone: 'GEORGIA — STORM WATCH',   snipers: 4, status: 'ARMED',    color: '#39ff14' },
+                ].map(({ zone, snipers: s, status, color }) => (
+                  <div
+                    key={zone}
+                    className="flex justify-between items-center px-3 py-2.5 border border-[rgba(0,245,255,0.1)] hover:border-[rgba(0,245,255,0.3)] transition-colors duration-150"
+                  >
+                    <div>
+                      <p className="text-[10px] tracking-widest text-[rgba(0,245,255,0.7)]">{zone}</p>
+                      <p className="text-[8px] tracking-[2px] text-[rgba(0,245,255,0.35)] mt-0.5">{s} SNIPERS DEPLOYED</p>
+                    </div>
+                    <span
+                      className="text-[9px] tracking-widest font-bold px-2 py-1 border"
+                      style={{
+                        color,
+                        borderColor: color + '44',
+                        background:  color + '11',
+                        textShadow: `0 0 8px ${color}66`,
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── AUDIT LOG ── */}
+          <div
+            role="log" aria-live="off"
+            className="bg-[#040d0d] border border-[rgba(0,245,255,0.22)] px-4 py-3 max-h-[72px] overflow-y-auto flex flex-col-reverse gap-0.5"
+          >
+            <p className="text-[8px] tracking-[3px] text-[rgba(0,245,255,0.4)] uppercase mb-1">// SYSTEM LOG</p>
+            {log.map((e) => (
+              <div key={e.id} className="flex gap-2.5 text-[9px] tracking-wide">
+                <span className="text-[rgba(57,255,20,0.3)] shrink-0">{e.time}</span>
+                <span className={
+                  e.type === 'ok'   ? 'text-[#39ff14]' :
+                  e.type === 'warn' ? 'text-[#ffb400]' :
+                  'text-[rgba(0,245,255,0.35)]'
+                }>{e.message}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── CTA BUTTONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'OPEN HERMES TERMINAL', href: '/predictive', variant: 'green' },
+              { label: 'DISPATCH STORM ALERT', href: '/storm',      variant: 'cyan'  },
+              { label: 'JOIN THE FLEET',        href: '/join',       variant: 'green' },
+            ].map(({ label, href, variant }) => (
+              
+                key={label}
+                href={href}
+                className="relative overflow-hidden border font-['Orbitron',monospace] text-[10px] font-bold tracking-[3px] py-4 uppercase text-center block active:scale-95 transition-all duration-150 group"
+                style={{
+                  borderColor: variant === 'cyan' ? '#00c8d4' : '#2dd10e',
+                  color:       variant === 'cyan' ? '#00f5ff' : '#39ff14',
+                  textShadow:  variant === 'cyan'
+                    ? '0 0 8px rgba(0,245,255,0.5)'
+                    : '0 0 8px rgba(57,255,20,0.5)',
+                }}
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  style={{ background: variant === 'cyan'
+                    ? 'linear-gradient(135deg,#00f5ff,#39ff14)'
+                    : 'linear-gradient(135deg,#39ff14,#00f5ff)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10 group-hover:text-black group-hover:[text-shadow:none] transition-colors duration-150">
+                  {label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* ── FOOTER ── */}
+          <footer className="flex justify-between items-center border-t border-[rgba(0,245,255,0.22)] pt-4">
+            <p className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              NODE <strong className="text-[#39ff14] font-normal">EMP-01</strong>
+              &nbsp;&bull;&nbsp;
+              ENV <strong className="text-[#39ff14] font-normal">PRODUCTION</strong>
+              &nbsp;&bull;&nbsp;
+              BUILD <strong className="text-[#00f5ff] font-normal">v2.1.0</strong>
+            </p>
+            <span className="text-[8px] tracking-widest text-[rgba(0,245,255,0.4)]">
+              UPTIME <strong className="text-[#00f5ff] font-normal">{uptime}</strong>
+            </span>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}
